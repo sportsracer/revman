@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+  <head>
+    <title>RevMan &ndash; Revenue Management reloaded!</title>
+    <style>
+      * {
+      font: 12px Ubuntu;
+      }
+      h1 {
+      font-size: 16px;
+      font-weight: bold;
+      }
+      body {
+      margin: 0;
+      }
+      #setup {
+      box-shadow: 0 10px 10px #aaa;
+      margin: 20px;
+      padding: 20px;
+      }
+      #game {
+      border: 2px solid gray;
+      display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <p id="status"></p>
+    <div id="setup">
+
+      <h1>Welcome to RevMan!</h1>
+
+      <p>Type in your info below and click &ldquo;Join&rdquo;</p>
+
+      <label for="name">Name:</label><br/>
+      <input type="text" id="name" value="Playa"/>
+      <br/><br/>
+
+      <label for="url">URL:</label><br/>
+      <input type="text" id="url" value="ws://localhost:8090/ws"/>
+      <br/><br/>
+
+      <button id="join">Join</button>
+
+    </div>
+    <div id="game">
+      <h1>In game!</h1>
+      <p>Balance:<br/><span id="balance"></p>
+    </div>
+    <script src="client.js"></script>
+  </body>
+</html>
