@@ -36,7 +36,7 @@ func (p *Platform) BuyOffer(offer *Offer) error {
 			p.offers[i] = p.offers[len(p.offers)-1]
 			p.offers = p.offers[0:len(p.offers)-1]
 			// wire the money!
-			offer.Hotel.Balance += offer.Price
+			offer.Hotel.Balance += offer.Price - VariableCost
 			return nil
 		}
 	}

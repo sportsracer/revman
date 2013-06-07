@@ -4,6 +4,15 @@ import (
 	"fmt"
 )
 
+const (
+	// cost of renting out a room
+	VariableCost = 80
+	// fix cost of operating for a day
+	FixCost = 1000
+	// daily interest rate on credits
+	InterestRate = 0.05
+)
+
 type Hotel struct {
 	Rooms int
 	Balance float32
