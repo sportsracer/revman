@@ -21,7 +21,7 @@ func (g *Game) AddPlayer(player *Player) {
 
 	// add some more guests to the pool
 	numNewGuests := int(float32(hotel.Rooms) * 0.80)
-	for i := 0; i <= numNewGuests; i++ {
+	for i := 0; i < numNewGuests; i++ {
 		guest := model.MakeGuest()
 		g.guests = append(g.guests, guest)
 	}
@@ -34,7 +34,7 @@ func (g *Game) AddOffer(player *Player, platformName string, price float32) erro
 	if !ok {
 		return errors.New("Unknown platform")
 	}
-	offer := model.MakeOffer(hotel, price)
+	offer := model.MakeOffer(hotel, price, platform)
 	err := platform.AddOffer(offer)
 	return err
 }
@@ -42,7 +42,7 @@ func (g *Game) AddOffer(player *Player, platformName string, price float32) erro
 // Perform an iteration, asking guests to choose offers. Return nested map
 // containing all bought offers
 func (g *Game) Tick() (statuses map[int]map[string]interface{}) {
-	log.Println("Game: Starting round")
+	log.Printf("Game: Starting round (hotels: %d, guests: %d)", len(g.hotels), len(g.guests))
 	log.Println("Game: Offers:")
 
 	platforms := make([]*model.Platform, 0, len(g.platforms))
@@ -53,11 +53,11 @@ func (g *Game) Tick() (statuses map[int]map[string]interface{}) {
 
 	boughtPerPlayer := make(map[int][]map[string]interface{})
 	for _, guest := range g.guests {
-		offer, platform := guest.BuyOffer(platforms)
+		offer := guest.BuyOffer(platforms)
 		if offer == nil {
 			continue
 		}
-		err := platform.BuyOffer(offer)
+		err := offer.Platform.BuyOffer(offer)
 		if err != nil {
 			log.Printf("Game: Error in transaction for %s", offer)
 			continue
@@ -76,7 +76,7 @@ func (g *Game) Tick() (statuses map[int]map[string]interface{}) {
 			boughtPerPlayer[id] = make([]map[string]interface{}, 0)
 			bought = boughtPerPlayer[id]
 		}
-		offerStatus := map[string]interface{}{"platform": platform.Name, "price": offer.Price}
+		offerStatus := map[string]interface{}{"platform": offer.Platform.Name, "price": offer.Price}
 		bought = append(bought, offerStatus)
 	}
 

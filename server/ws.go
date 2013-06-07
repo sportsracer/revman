@@ -98,8 +98,7 @@ type Conn struct {
 func (c *Conn) reader() {
 	for {
 		var data ProtMsg
-		err := websocket.JSON.Receive(c.ws, &data)
-		if err != nil {
+		if err := websocket.JSON.Receive(c.ws, &data); err != nil {
 			log.Println(err)
 			break
 		}
@@ -111,8 +110,7 @@ func (c *Conn) reader() {
 
 func (c *Conn) writer() {
 	for message := range c.send {
-		err := websocket.JSON.Send(c.ws, message)
-		if err != nil {
+		if err := websocket.JSON.Send(c.ws, message); err != nil {
 			log.Println(err)
 			break
 		}
@@ -120,7 +118,7 @@ func (c *Conn) writer() {
 	c.ws.Close()
 }
 
-func NewServer() *WsServer {
+func MakeWsServer() *WsServer {
 	return &WsServer{
 		conns: make(map[*Conn]int, buffer_size),
 		join: make(chan *Conn, buffer_size),

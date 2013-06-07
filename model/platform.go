@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"fmt"
+	"sort"
 )
 
 type Platform struct {
@@ -44,6 +45,46 @@ func (p *Platform) BuyOffer(offer *Offer) error {
 
 func (p *Platform) Reset() {
 	p.offers = make([]*Offer, 0, 128)
+}
+
+func (p *Platform) getOfferByHotel(hotel *Hotel) *Offer {
+	for _, offer := range p.offers {
+		if offer.Hotel == hotel {
+			return offer
+		}
+	}
+	return nil
+}
+
+// wrapper to make offers sortable by price
+
+type offerByPrice struct {
+	offers []*Offer
+}
+
+func (o *offerByPrice) Len() int {
+	return len(o.offers)
+}
+
+func (o *offerByPrice) Less(i, j int) bool {
+	return o.offers[i].Price < o.offers[j].Price
+}
+
+func (o *offerByPrice) Swap(i, j int) {
+	o.offers[i], o.offers[j] = o.offers[j], o.offers[i]
+}
+
+func (p *Platform) getCheapestOffers(num int) []*Offer {
+	cp := make([]*Offer, len(p.offers))
+	copy(cp, p.offers)
+	offers := &offerByPrice {
+		offers: cp,
+	}
+	sort.Sort(offers)
+	if num >= len(offers.offers) {
+		num = len(offers.offers)
+	}
+	return offers.offers[:num]
 }
 
 func MakePlatform(name string) *Platform {

@@ -14,7 +14,7 @@ import (
 func main() {
 	var addr = flag.String("addr", ":8090", "Port")
 	flag.Parse()
-	var server = server.NewServer()
+	var server = server.MakeWsServer()
 	var ctrl = ctrl.MakeController(server)
 
 	go server.Run()
