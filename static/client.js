@@ -27,6 +27,7 @@ window.onload = function() {
 	joinButton = document.getElementById("join");
 	gameWindow = document.getElementById("game");
 	balanceSpan = document.getElementById("balance");
+	boughtOffersSpan = document.getElementById("boughtOffers");
 
 	joinButton.onclick = function() {
 		var url = document.getElementById("url").value
@@ -85,15 +86,18 @@ function joinGame(url, name) {
 
 function visualize(state) {
 	balanceSpan.textContent = state.balance;
+	boughtOffersSpan.textContent = state.offers.length;
 }
 
 function makeOffers(state) {
 	// make 100 random offers
-	var offers = [];
+	var offers = []
+	, price = parseFloat(document.getElementById("price").value);
 	for (var i = 0; i < 100; i++) {
 		offers.push({
 			platform: platforms[Math.floor(Math.random() * platforms.length)],
-			price: 80.0 + Math.random() * 40.0
+			//price: 80.0 
+			price: price + Math.random() * 5.0
 		});
 	}
 	return offers;

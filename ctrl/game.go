@@ -74,7 +74,7 @@ func (g *Game) Tick() (statuses map[int]map[string]interface{}) {
 			log.Panic("Hotel %s for offer not found", offer.Hotel)
 		}
 		offerStatus := map[string]interface{}{"platform": offer.Platform.Name, "price": offer.Price}
-		if _, ok := boughtPerPlayer[id]; ok {
+		if _, ok := boughtPerPlayer[id]; !ok {
 			boughtPerPlayer[id] = []*map[string]interface{}{&offerStatus}
 		} else {
 			boughtPerPlayer[id] = append(boughtPerPlayer[id], &offerStatus)

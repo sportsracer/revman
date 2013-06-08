@@ -11,18 +11,18 @@ import (
 
 const (
 	// how many recently seen/bought offers does the guest remember? 
-	cognitiveLoad = 10
+	cognitiveLoad = 50
 	// weight of bought/seen offers and external value in perceived value calculation
-	boughtWeight = 0.5
-	seenWeight = 0.25
-	externalWeight = 0.25
+	boughtWeight = 0.05
+	seenWeight = 0.45
+	valueWeight = 0.5
 	// we're not fully rational ;)
-	priceRandomness = 0.10
+	priceRandomness = 0.05
 )
 
 type Guest struct {
 	// guest's perceived value of a hotel room
-	externalValue float32
+	value float32
 	// offers this guest has bought
 	boughtOffers []*Offer
 	// offers this guest has seen
@@ -70,7 +70,7 @@ func (g *Guest) getPreferredHotel() *Hotel {
 
 	hotel, count := util.MaxOccur(hotels)
 
-	if count <= 1 {
+	if count <= cognitiveLoad / 5 {
 		return nil
 	}
 	return hotel.(*Hotel)
@@ -86,7 +86,7 @@ func (g *Guest) getPreferredPlatform() *Platform {
 
 	platform, count := util.MaxOccur(platforms)
 
-	if count <= 1 {
+	if count <= cognitiveLoad / 5 {
 		return nil
 	}
 	return platform.(*Platform)
@@ -116,8 +116,8 @@ func (g *Guest) GetValue() float32 {
 	}
 
 	{
-		sum += g.externalValue * externalWeight
-		totalWeight += externalWeight
+		sum += g.value * valueWeight
+		totalWeight += valueWeight
 	}
 
 	return sum / totalWeight
@@ -196,10 +196,9 @@ func (g *Guest) BuyOffer(platforms []*Platform) *Offer {
 
 	g.seenOffers = append(g.seenOffers, consideredOffers...)
 
-	value := g.GetValue()
-	maxPrice := value * 1.1
+	g.value = g.GetValue()
 	filterOffer := func(o interface{}) bool {
-		return o.(*Offer).Price <= maxPrice
+		return getAdjustedPrice(o.(*Offer), g.value, preferredHotel, g.loyalty) <= g.value
 	}
 
 	acceptableOffers := make([]*Offer, 0)
@@ -211,7 +210,7 @@ func (g *Guest) BuyOffer(platforms []*Platform) *Offer {
 	
 	offers := &offerByAdjustedPrice {
 		offers: acceptableOffers,
-		value: g.GetValue(),
+		value: g.value,
 		preferredHotel: preferredHotel,
 		loyalty: g.loyalty,
 	}
@@ -226,12 +225,12 @@ func (g *Guest) BuyOffer(platforms []*Platform) *Offer {
 
 func MakeGuest() *Guest {
 	return &Guest {
-		externalValue: 100.0,
+		value: 100.0,
 		boughtOffers: make([]*Offer, 0),
 		seenOffers: make([]*Offer, 0),
-		numPlatforms: 1,
-		numOffers: 10,
-		loyalty: 1.1,
+		numPlatforms: rand.Intn(4) + 1,
+		numOffers: rand.Intn(5) + 5,
+		loyalty: 1.0 + rand.Float32() * 0.1,
 	}
 }
 

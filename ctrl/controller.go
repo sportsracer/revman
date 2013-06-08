@@ -58,11 +58,18 @@ func (c *Controller) Run() {
 
 				c.mutex.Lock()
 				offers := msg.Data.Data["offers"]
-				for _, offer := range offers.([]interface{}) {
-					_offer := offer.(map[string]interface{})
-					platform := _offer["platform"].(string)
-					price := _offer["price"].(float64)
-					c.game.AddOffer(player, platform, float32(price))
+				for _, _offer := range offers.([]interface{}) {
+					if offer, ok := _offer.(map[string]interface{}); ok {
+						if _platform, ok := offer["platform"]; ok {
+							if platform, ok := _platform.(string); ok {
+								if _price, ok := offer["price"]; ok {
+									if price, ok := _price.(float64); ok {
+										c.game.AddOffer(player, platform, float32(price))
+									}
+								}
+							}
+						}
+					}
 				}
 				c.mutex.Unlock()
 			default:
