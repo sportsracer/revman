@@ -51,15 +51,14 @@ func (g *Game) Tick() (statuses map[int]map[string]interface{}) {
 		platforms = append(platforms, platform)
 	}
 
-	boughtPerPlayer := make(map[int][]map[string]interface{})
+	boughtPerPlayer := make(map[int][]*map[string]interface{})
 	for _, guest := range g.guests {
 		offer := guest.BuyOffer(platforms)
 		if offer == nil {
 			continue
 		}
-		err := offer.Platform.BuyOffer(offer)
-		if err != nil {
-			log.Printf("Game: Error in transaction for %s", offer)
+		if err := offer.Platform.BuyOffer(offer); err != nil {
+			log.Panic("Game: Error in transaction for %s", offer)
 			continue
 		}
 
@@ -71,13 +70,15 @@ func (g *Game) Tick() (statuses map[int]map[string]interface{}) {
 				break
 			}
 		}
-		bought, ok := boughtPerPlayer[id]
-		if !ok {
-			boughtPerPlayer[id] = make([]map[string]interface{}, 0)
-			bought = boughtPerPlayer[id]
+		if id == -1 {
+			log.Panic("Hotel %s for offer not found", offer.Hotel)
 		}
 		offerStatus := map[string]interface{}{"platform": offer.Platform.Name, "price": offer.Price}
-		bought = append(bought, offerStatus)
+		if _, ok := boughtPerPlayer[id]; ok {
+			boughtPerPlayer[id] = []*map[string]interface{}{&offerStatus}
+		} else {
+			boughtPerPlayer[id] = append(boughtPerPlayer[id], &offerStatus)
+		}
 	}
 
 	for _, hotel := range g.hotels {
@@ -103,7 +104,7 @@ func (g *Game) Tick() (statuses map[int]map[string]interface{}) {
 	for id, hotel := range g.hotels {
 		bought, ok := boughtPerPlayer[id]
 		if !ok {
-			bought = []map[string]interface{}{}
+			bought = []*map[string]interface{}{}
 		}
 		statuses[id] = map[string]interface{}{
 			"balance": hotel.Balance,
