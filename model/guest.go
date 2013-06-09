@@ -14,8 +14,8 @@ const (
 	cognitiveLoad = 50
 	// weight of bought/seen offers and external value in perceived value calculation
 	boughtWeight = 0.05
-	seenWeight = 0.45
-	valueWeight = 0.5
+	seenWeight = 0.2
+	valueWeight = 0.75
 	// we're not fully rational ;)
 	priceRandomness = 0.05
 )
@@ -23,6 +23,8 @@ const (
 type Guest struct {
 	// guest's perceived value of a hotel room
 	value float32
+	// maximum price this guest is willing to pay, based on economic situation, comparable prices etc
+	maxValue float32
 	// offers this guest has bought
 	boughtOffers []*Offer
 	// offers this guest has seen
@@ -196,11 +198,13 @@ func (g *Guest) BuyOffer(platforms []*Platform) *Offer {
 
 	g.seenOffers = append(g.seenOffers, consideredOffers...)
 
+	// update value
 	g.value = g.GetValue()
-	filterOffer := func(o interface{}) bool {
-		return getAdjustedPrice(o.(*Offer), g.value, preferredHotel, g.loyalty) <= g.value
-	}
 
+	filterOffer := func(o interface{}) bool {
+		max := func() float32 { if g.maxValue < g.value { return g.maxValue }; return g.value }()
+		return getAdjustedPrice(o.(*Offer), g.value, preferredHotel, g.loyalty) <= max
+	}
 	acceptableOffers := make([]*Offer, 0)
 	for _, offer := range consideredOffers {
 		if filterOffer(offer) {
@@ -226,6 +230,7 @@ func (g *Guest) BuyOffer(platforms []*Platform) *Offer {
 func MakeGuest() *Guest {
 	return &Guest {
 		value: 100.0,
+		maxValue: 90.0 + rand.Float32() * 110.0,
 		boughtOffers: make([]*Offer, 0),
 		seenOffers: make([]*Offer, 0),
 		numPlatforms: rand.Intn(4) + 1,
