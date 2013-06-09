@@ -1,48 +1,61 @@
 
-const pollFreq = 50
-, rooms = 100
+const rooms = 100
 , platforms = ["ta", "book"];
 
-var ws = null
-, statusP = null
-, setupForm = null
-, joinButton = null
-, gameWindow = null
-, balanceSpan = null;
+visualize = (function() {
+	var history = {
+		balance: [],
+		boughtOffers: []
+	}
+	, round = 0;
+	return function (state) {
+		$("#balance").text(state.balance);
+		$("#boughtOffers").text(state.offers.length);
+		
+		history.balance.push([round, state.balance]);
+		history.boughtOffers.push([round, state.offers.length]);
+		$.plot("#graph", [{
+			data: history.balance,
+			label: "Balance"
+		}, {
+			data: history.boughtOffers,
+			label: "Bought offers",
+			yaxis: 2
+		}], {
+			yaxes: [ {}, {
+				min: 0, max: 100,
+				position: "right"
+			}]
+		});
+		round++;
+	}
+})();
+
+function makeOffers(state) {
+	// make 100 random offers
+	var offers = []
+	, price = parseFloat(document.getElementById("price").value);
+	for (var i = 0; i < 100; i++) {
+		offers.push({
+			platform: platforms[Math.floor(Math.random() * platforms.length)],
+			price: price + Math.random() * 5.0
+		});
+	}
+	return offers;
+}
 
 function status(msg) {
-	if (statusP) {
-		statusP.textContent = msg;
-	}
-}
-
-function log(msg) {
+	$("#status").text(msg);
 	console.log(msg);
-	status(msg);
 }
 
-window.onload = function() {
-	statusP = document.getElementById("status");
-	setupForm = document.getElementById("setup");
-	joinButton = document.getElementById("join");
-	gameWindow = document.getElementById("game");
-	balanceSpan = document.getElementById("balance");
-	boughtOffersSpan = document.getElementById("boughtOffers");
+function joinGame(settings) {
 
-	joinButton.onclick = function() {
-		var url = document.getElementById("url").value
-		, name = document.getElementById("name").value;
-
-		joinGame(url, name);
-	};
-};
-
-function joinGame(url, name) {
-	log("Connecting to " + url + " ...");
-	ws = new WebSocket(url);
-
+	status("Connecting to " + settings.url + " ...");
+	
+	ws = new WebSocket(settings.url);
 	ws.onopen = function() {
-		log("Connection established! Joining as " + name + " ...");
+		status("Connection established! Joining as " + settings.name + " ...");
 		ws.send(JSON.stringify(
 				{
 					Msg: "join",
@@ -52,15 +65,15 @@ function joinGame(url, name) {
 				}
 			));
 	};
-
+	
 	ws.onmessage = function(message) {
 		message = JSON.parse(message.data);
 		switch (message.Msg) {
-
+		
 		case "joined":
-			log("Joined as player " + message.Data.playerIndex);
-			setupForm.style.display = "none";
-			gameWindow.style.display = "block";
+			status("Joined as player " + message.Data.playerIndex);
+			$("#setup").hide();
+			$("#game").show();
 			break;
 			
 		case "state":
@@ -82,23 +95,23 @@ function joinGame(url, name) {
 			log("Invalid msg");
 		}
 	};
+
 }
 
-function visualize(state) {
-	balanceSpan.textContent = state.balance;
-	boughtOffersSpan.textContent = state.offers.length;
-}
-
-function makeOffers(state) {
-	// make 100 random offers
-	var offers = []
-	, price = parseFloat(document.getElementById("price").value);
-	for (var i = 0; i < 100; i++) {
-		offers.push({
-			platform: platforms[Math.floor(Math.random() * platforms.length)],
-			//price: 80.0 
-			price: price + Math.random() * 5.0
-		});
+$(document).ready(function() {
+	var statusEl = $("#status");
+	
+	function getSettings() {
+		return {
+			name: $("#name").val(),
+			url: $("#url").val()
+		}
 	}
-	return offers;
-}
+	
+
+	
+	$("#join").click(function() {
+		joinGame(getSettings());
+	});
+	
+});
