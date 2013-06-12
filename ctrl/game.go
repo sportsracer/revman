@@ -121,6 +121,8 @@ func MakeGame() *Game {
 		platforms: map[string]*model.Platform{
 			"ta": model.MakePlatform("ta"),
 			"book": model.MakePlatform("book"),
+			"hc": model.MakePlatform("hc"),
+			"hrs": model.MakePlatform("hrs"),
 		},
 		guests: make([]*model.Guest, 0, 1024),
 	}
