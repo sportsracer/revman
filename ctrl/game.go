@@ -83,9 +83,6 @@ func (g *Game) Tick() (statuses map[int]map[string]interface{}) {
 
 	for _, hotel := range g.hotels {
 		hotel.Balance -= model.FixCost
-		if hotel.Balance < 0 {
-			hotel.Balance += hotel.Balance * model.InterestRate
-		}
 	}
 
 	log.Println("Game: Ending round")

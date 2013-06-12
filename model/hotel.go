@@ -9,8 +9,6 @@ const (
 	VariableCost = 80
 	// fix cost of operating for a day
 	FixCost = 800
-	// daily interest rate on credits
-	InterestRate = 0.01
 )
 
 type Hotel struct {
