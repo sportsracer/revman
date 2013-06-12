@@ -3,7 +3,13 @@ package model
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"sort"
+)
+
+const (
+	// hotels are sorted by criteria other than price, too ...
+	priceRandomness = 1
 )
 
 type Platform struct {
@@ -67,7 +73,9 @@ func (o *offerByPrice) Len() int {
 }
 
 func (o *offerByPrice) Less(i, j int) bool {
-	return o.offers[i].Price < o.offers[j].Price
+	p1 := o.offers[i].Price * (1.0 + rand.Float32() * priceRandomness)
+	p2 := o.offers[j].Price * (1.0 + rand.Float32() * priceRandomness)
+	return p1 < p2
 }
 
 func (o *offerByPrice) Swap(i, j int) {

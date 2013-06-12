@@ -6,9 +6,9 @@ import (
 
 const (
 	// cost of renting out a room
-	VariableCost = 80
+	VariableCost = 50
 	// fix cost of operating for a day
-	FixCost = 800
+	FixCost = 2000
 )
 
 type Hotel struct {

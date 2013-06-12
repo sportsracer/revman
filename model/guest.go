@@ -11,13 +11,13 @@ import (
 
 const (
 	// how many recently seen/bought offers does the guest remember? 
-	cognitiveLoad = 50
+	cognitiveLoad = 200
 	// weight of bought/seen offers and external value in perceived value calculation
 	boughtWeight = 0.05
 	seenWeight = 0.2
 	valueWeight = 0.75
 	// we're not fully rational ;)
-	priceRandomness = 0.05
+	valueRandomness = 0.1
 )
 
 type Guest struct {
@@ -139,8 +139,7 @@ func getAdjustedPrice(o *Offer, value float32, preferredHotel *Hotel, loyalty fl
 	if (o.Hotel == preferredHotel) {
 		price /= loyalty
 	}
-	price -= o.Hotel.getReputationValue()
-	price *= (1.0 - priceRandomness) + rand.Float32() * priceRandomness // spice it up a bit ;)
+	price *= (1.0 - valueRandomness) + rand.Float32() * valueRandomness * 2.0 // spice it up a bit ;)
 	return price
 }
 
@@ -230,12 +229,12 @@ func (g *Guest) BuyOffer(platforms []*Platform) *Offer {
 func MakeGuest() *Guest {
 	return &Guest {
 		value: 100.0,
-		maxValue: 90.0 + rand.Float32() * 110.0,
+		maxValue: 100.0 + rand.Float32() * 100.0,
 		boughtOffers: make([]*Offer, 0),
 		seenOffers: make([]*Offer, 0),
 		numPlatforms: rand.Intn(4) + 1,
 		numOffers: rand.Intn(5) + 5,
-		loyalty: 1.0 + rand.Float32() * 0.1,
+		loyalty: 1.0 + rand.Float32() * 0.2,
 	}
 }
 
