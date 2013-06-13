@@ -60,7 +60,7 @@ function joinGame(settings) {
 				{
 					Msg: "join",
 					Data: {
-						name: name
+						name: settings.name
 					}
 				}
 			));
@@ -107,8 +107,6 @@ $(document).ready(function() {
 			url: $("#url").val()
 		}
 	}
-	
-
 	
 	$("#join").click(function() {
 		joinGame(getSettings());
