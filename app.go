@@ -23,6 +23,7 @@ func main() {
 	log.Printf("RevMan listening on port %s", *addr)
 	http.Handle("/ws", server.MakeWsHandler())
 	http.Handle("/", http.FileServer(http.Dir("static")))
+	http.HandleFunc("/state", ctrl.MakeStateHandler())
 	if err := http.ListenAndServe(*addr, nil); err != nil {
 		log.Fatal("Server startup", err)
 	}

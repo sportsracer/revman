@@ -22,6 +22,10 @@ type Controller struct {
 	game *Game
 	mutex *sync.RWMutex
 	ticker *time.Ticker
+
+	state struct {
+		players []map[string]interface{}
+	}
 }
 
 func (c *Controller) Run() {
@@ -77,13 +81,20 @@ func (c *Controller) Run() {
 			}
 		case <-c.ticker.C:
 			c.mutex.Lock()
-			states := c.game.Tick()
+			states, players := c.game.Tick()
+			c.state.players = players
 			c.mutex.Unlock()
 			for id, playerState := range states {
 				c.server.Send(id, "state", playerState)
 			}
 		}
 	}
+}
+
+func (c *Controller) getState() map[string]interface{} {
+	state := make(map[string]interface{})
+	state["players"] = c.state.players
+	return state
 }
 
 const (
