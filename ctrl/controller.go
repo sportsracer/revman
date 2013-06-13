@@ -25,6 +25,7 @@ type Controller struct {
 
 	state struct {
 		players []map[string]interface{}
+		offers []map[string]interface{}
 	}
 }
 
@@ -81,8 +82,9 @@ func (c *Controller) Run() {
 			}
 		case <-c.ticker.C:
 			c.mutex.Lock()
-			states, players := c.game.Tick()
+			states, players, offers := c.game.Tick()
 			c.state.players = players
+			c.state.offers = offers
 			c.mutex.Unlock()
 			for id, playerState := range states {
 				c.server.Send(id, "state", playerState)
@@ -94,6 +96,7 @@ func (c *Controller) Run() {
 func (c *Controller) getState() map[string]interface{} {
 	state := make(map[string]interface{})
 	state["players"] = c.state.players
+	state["offers"] = c.state.offers
 	return state
 }
 

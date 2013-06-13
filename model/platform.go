@@ -95,6 +95,10 @@ func (p *Platform) getCheapestOffers(num int) []*Offer {
 	return offers.offers[:num]
 }
 
+func (p *Platform) GetOffers() []*Offer {
+	return p.offers
+}
+
 func MakePlatform(name string) *Platform {
 	p := &Platform{
 		Name: name,

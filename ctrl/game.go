@@ -41,7 +41,7 @@ func (g *Game) AddOffer(player *Player, platformName string, price float32) erro
 
 // Perform an iteration, asking guests to choose offers. Return nested map
 // containing all bought offers
-func (g *Game) Tick() (statuses map[int]map[string]interface{}, players []map[string]interface{}) {
+func (g *Game) Tick() (statuses map[int]map[string]interface{}, players []map[string]interface{}, offers []map[string]interface{}) {
 	log.Printf("Game: Starting round (hotels: %d, guests: %d)", len(g.hotels), len(g.guests))
 	log.Println("Game: Offers:")
 
@@ -49,6 +49,30 @@ func (g *Game) Tick() (statuses map[int]map[string]interface{}, players []map[st
 	for _, platform := range g.platforms {
 		log.Printf("\t%s", platform)
 		platforms = append(platforms, platform)
+	}
+
+	// offers
+	offers = make([]map[string]interface{}, 0)
+	for _, platform := range g.platforms {
+		for _, offer := range platform.GetOffers() {
+			var id int = -1
+			for _id, hotel := range g.hotels {
+				if hotel == offer.Hotel {
+					id = _id
+					break
+				}
+			}
+			if id == -1 {
+				log.Printf("Hotel not found :(")
+				continue
+			}
+			offerMap := map[string]interface{}{
+				"platform": offer.Platform.Name,
+				"price": offer.Price,
+				"player": g.players[id].name,
+			}
+			offers = append(offers, offerMap)
+		}
 	}
 
 	boughtPerPlayer := make(map[int][]*map[string]interface{})

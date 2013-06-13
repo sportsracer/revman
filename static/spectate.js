@@ -7,7 +7,8 @@ function refresh() {
 }
 
 const minSize = 10
-, maxSize = 70;
+, maxSize = 70
+, platforms = ["ta", "book", "hrs", "hc"];
 
 function visualize(data) {
 	
@@ -36,6 +37,29 @@ function visualize(data) {
 		);
 	});
 	$("#players").html(playersEl.html());
+	
+	var offers = {
+		"ta": [], "book": [], "hrs": [], "hc": []
+	};
+	data.offers.sort(function(o1, o2) {
+		return o1.price - o2.price;
+	}).forEach(function(offer) {
+		offers[offer.platform].push(offer);
+	});
+	
+	platforms.forEach(function(platform) {
+		var platformEl = $("<ul>");
+		platformEl.append("<li>TOTAL: {total}</li>".replace("{total}", offers[platform].length));
+		offers[platform].forEach(function(offer) {
+			platformEl.append(
+				$("<li>{price} ({player})</li>"
+					.replace("{price}", offer.price)
+					.replace("{player}", offer.player)
+				)
+			);
+		});
+		$("#" + platform).html(platformEl.html());
+	});
 }
 
 $(document).ready(function() {
