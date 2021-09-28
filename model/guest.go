@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
-	//"errors"
-	
-	"me/revman/util"
+
+	"github.com/sportsracer/revman/util"
 )
 
 const (

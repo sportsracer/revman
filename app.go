@@ -4,11 +4,9 @@ import (
 	"flag"
 	"log"
 	"net/http"
-)
 
-import (
-	"me/revman/ctrl"
-	"me/revman/server"
+	"github.com/sportsracer/revman/ctrl"
+	"github.com/sportsracer/revman/server"
 )
 
 func main() {

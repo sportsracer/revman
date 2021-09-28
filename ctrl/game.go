@@ -4,7 +4,7 @@ import (
 	"errors"
 	"log"
 
-	"me/revman/model"
+	"github.com/sportsracer/revman/model"
 )
 
 type Game struct {

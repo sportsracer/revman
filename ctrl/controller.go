@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"me/revman/server"
+	"github.com/sportsracer/revman/server"
 )
 
 const (
