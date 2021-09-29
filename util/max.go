@@ -2,7 +2,7 @@ package util
 
 // Return the item that occurs most frequently in iter
 func MaxOccur(iter Iterable) (val interface{}, count int) {
-	
+
 	max := 0
 	var maxItem interface{}
 	counter := make(map[interface{}]int)

@@ -25,7 +25,7 @@ func (xs IntSlice) Iter() <-chan interface{} {
 type mapFunc func(interface{}) interface{}
 
 type mappedIterable struct {
-	f mapFunc
+	f    mapFunc
 	iter Iterable
 }
 

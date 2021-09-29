@@ -8,10 +8,10 @@ import (
 )
 
 type Game struct {
-	players map[int]*Player
-	hotels map[int]*model.Hotel
+	players   map[int]*Player
+	hotels    map[int]*model.Hotel
 	platforms map[string]*model.Platform
-	guests []*model.Guest
+	guests    []*model.Guest
 }
 
 func (g *Game) AddPlayer(player *Player) {
@@ -68,8 +68,8 @@ func (g *Game) Tick() (statuses map[int]map[string]interface{}, players []map[st
 			}
 			offerMap := map[string]interface{}{
 				"platform": offer.Platform.Name,
-				"price": offer.Price,
-				"player": g.players[id].name,
+				"price":    offer.Price,
+				"player":   g.players[id].name,
 			}
 			offers = append(offers, offerMap)
 		}
@@ -119,7 +119,7 @@ func (g *Game) Tick() (statuses map[int]map[string]interface{}, players []map[st
 	for _, platform := range g.platforms {
 		platform.Reset()
 	}
-	
+
 	// return status
 	statuses = make(map[int]map[string]interface{})
 	for id, hotel := range g.hotels {
@@ -129,16 +129,16 @@ func (g *Game) Tick() (statuses map[int]map[string]interface{}, players []map[st
 		}
 		statuses[id] = map[string]interface{}{
 			"balance": hotel.Balance,
-			"offers": bought,
+			"offers":  bought,
 		}
 	}
 
 	players = make([]map[string]interface{}, 0, len(g.players))
 	for _, player := range g.players {
 		playerStatus := map[string]interface{}{
-			"name": player.name,
+			"name":        player.name,
 			"playerIndex": player.id,
-			"balance": g.hotels[player.id].Balance,
+			"balance":     g.hotels[player.id].Balance,
 		}
 		players = append(players, playerStatus)
 	}
@@ -149,12 +149,12 @@ func (g *Game) Tick() (statuses map[int]map[string]interface{}, players []map[st
 func MakeGame() *Game {
 	return &Game{
 		players: make(map[int]*Player),
-		hotels: make(map[int]*model.Hotel),
+		hotels:  make(map[int]*model.Hotel),
 		platforms: map[string]*model.Platform{
-			"ta": model.MakePlatform("ta"),
+			"ta":   model.MakePlatform("ta"),
 			"book": model.MakePlatform("book"),
-			"hc": model.MakePlatform("hc"),
-			"hrs": model.MakePlatform("hrs"),
+			"hc":   model.MakePlatform("hc"),
+			"hrs":  model.MakePlatform("hrs"),
 		},
 		guests: make([]*model.Guest, 0, 1024),
 	}

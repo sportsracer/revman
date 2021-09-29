@@ -6,7 +6,7 @@ import (
 
 func Avg(iter Iterable) (float32, error) {
 	var sum float32
-	var count int 
+	var count int
 	for x := range iter.Iter() {
 		sum += x.(float32)
 		count += 1

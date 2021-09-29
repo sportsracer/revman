@@ -5,15 +5,15 @@ import (
 )
 
 type Offer struct {
-	Hotel *Hotel
-	Price float32
+	Hotel    *Hotel
+	Price    float32
 	Platform *Platform
 }
 
 func MakeOffer(hotel *Hotel, price float32, platform *Platform) *Offer {
 	return &Offer{
-		Hotel: hotel,
-		Price: price,
+		Hotel:    hotel,
+		Price:    price,
 		Platform: platform,
 	}
 }

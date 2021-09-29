@@ -11,7 +11,7 @@ import (
 
 const (
 	buffer_size = 32
-	tick_s = 1
+	tick_s      = 1
 )
 
 type Controller struct {
@@ -19,13 +19,13 @@ type Controller struct {
 	*server.Subscriber
 
 	players map[int]*Player
-	game *Game
-	mutex *sync.RWMutex
-	ticker *time.Ticker
+	game    *Game
+	mutex   *sync.RWMutex
+	ticker  *time.Ticker
 
 	state struct {
 		players []map[string]interface{}
-		offers []map[string]interface{}
+		offers  []map[string]interface{}
 	}
 }
 
@@ -33,7 +33,7 @@ func (c *Controller) Run() {
 	for {
 		select {
 		case id := <-c.Join:
-			player := &Player{ id: id }
+			player := &Player{id: id}
 			c.players[id] = player
 			log.Printf("Controller: Connected: %s", player)
 		case msg := <-c.Rcv:
@@ -106,8 +106,8 @@ const (
 )
 
 type Player struct {
-	id int
-	name string
+	id     int
+	name   string
 	status int
 }
 
@@ -119,12 +119,12 @@ func MakeController(s server.Server) *Controller {
 	sub := server.MakeSubscriber(buffer_size)
 	game := MakeGame()
 	ctrl := &Controller{
-		server: s,
+		server:     s,
 		Subscriber: sub,
-		players: make(map[int]*Player),
-		game: game,
-		mutex: &sync.RWMutex{},
-		ticker: time.NewTicker(tick_s * time.Second),
+		players:    make(map[int]*Player),
+		game:       game,
+		mutex:      &sync.RWMutex{},
+		ticker:     time.NewTicker(tick_s * time.Second),
 	}
 	s.Subscribe(ctrl.Subscriber)
 	return ctrl

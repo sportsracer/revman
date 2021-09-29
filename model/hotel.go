@@ -12,13 +12,13 @@ const (
 )
 
 type Hotel struct {
-	Rooms int
+	Rooms   int
 	Balance float32
 }
 
 func MakeHotel() *Hotel {
 	return &Hotel{
-		Rooms: 100,
+		Rooms:   100,
 		Balance: 0,
 	}
 }

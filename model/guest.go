@@ -9,12 +9,12 @@ import (
 )
 
 const (
-	// how many recently seen/bought offers does the guest remember? 
+	// how many recently seen/bought offers does the guest remember?
 	cognitiveLoad = 200
 	// weight of bought/seen offers and external value in perceived value calculation
 	boughtWeight = 0.05
-	seenWeight = 0.2
-	valueWeight = 0.75
+	seenWeight   = 0.2
+	valueWeight  = 0.75
 	// we're not fully rational ;)
 	valueRandomness = 0.1
 )
@@ -62,7 +62,7 @@ func (xs offerSlice) Iter() <-chan interface{} {
 }
 
 func (g *Guest) getPreferredHotel() *Hotel {
-	
+
 	getHotel := func(o interface{}) interface{} {
 		return o.(*Offer).Hotel
 	}
@@ -71,7 +71,7 @@ func (g *Guest) getPreferredHotel() *Hotel {
 
 	hotel, count := util.MaxOccur(hotels)
 
-	if count <= cognitiveLoad / 5 {
+	if count <= cognitiveLoad/5 {
 		return nil
 	}
 	return hotel.(*Hotel)
@@ -87,7 +87,7 @@ func (g *Guest) getPreferredPlatform() *Platform {
 
 	platform, count := util.MaxOccur(platforms)
 
-	if count <= cognitiveLoad / 5 {
+	if count <= cognitiveLoad/5 {
 		return nil
 	}
 	return platform.(*Platform)
@@ -135,20 +135,20 @@ func shufflePlatforms(platforms []*Platform) []*Platform {
 
 func getAdjustedPrice(o *Offer, value float32, preferredHotel *Hotel, loyalty float32) float32 {
 	price := o.Price
-	if (o.Hotel == preferredHotel) {
+	if o.Hotel == preferredHotel {
 		price /= loyalty
 	}
-	price *= (1.0 - valueRandomness) + rand.Float32() * valueRandomness * 2.0 // spice it up a bit ;)
+	price *= (1.0 - valueRandomness) + rand.Float32()*valueRandomness*2.0 // spice it up a bit ;)
 	return price
 }
 
 // make offers sortable by value for this guest
 
 type offerByAdjustedPrice struct {
-	offers []*Offer
-	value float32
+	offers         []*Offer
+	value          float32
 	preferredHotel *Hotel
-	loyalty float32
+	loyalty        float32
 }
 
 func (o *offerByAdjustedPrice) Len() int {
@@ -166,7 +166,7 @@ func (o *offerByAdjustedPrice) Swap(i, j int) {
 }
 
 func (g *Guest) BuyOffer(platforms []*Platform) *Offer {
-	
+
 	// choose platforms
 	consideredPlatforms := make([]*Platform, 0)
 	if preferredPlatform := g.getPreferredPlatform(); preferredPlatform != nil {
@@ -200,7 +200,12 @@ func (g *Guest) BuyOffer(platforms []*Platform) *Offer {
 	g.value = g.GetValue()
 
 	filterOffer := func(o interface{}) bool {
-		max := func() float32 { if g.maxValue < g.value { return g.maxValue }; return g.value }()
+		max := func() float32 {
+			if g.maxValue < g.value {
+				return g.maxValue
+			}
+			return g.value
+		}()
 		return getAdjustedPrice(o.(*Offer), g.value, preferredHotel, g.loyalty) <= max
 	}
 	acceptableOffers := make([]*Offer, 0)
@@ -209,12 +214,12 @@ func (g *Guest) BuyOffer(platforms []*Platform) *Offer {
 			acceptableOffers = append(acceptableOffers, offer)
 		}
 	}
-	
-	offers := &offerByAdjustedPrice {
-		offers: acceptableOffers,
-		value: g.value,
+
+	offers := &offerByAdjustedPrice{
+		offers:         acceptableOffers,
+		value:          g.value,
 		preferredHotel: preferredHotel,
-		loyalty: g.loyalty,
+		loyalty:        g.loyalty,
 	}
 	sort.Sort(offers)
 
@@ -226,14 +231,14 @@ func (g *Guest) BuyOffer(platforms []*Platform) *Offer {
 }
 
 func MakeGuest() *Guest {
-	return &Guest {
-		value: 100.0,
-		maxValue: 100.0 + rand.Float32() * 100.0,
+	return &Guest{
+		value:        100.0,
+		maxValue:     100.0 + rand.Float32()*100.0,
 		boughtOffers: make([]*Offer, 0),
-		seenOffers: make([]*Offer, 0),
+		seenOffers:   make([]*Offer, 0),
 		numPlatforms: rand.Intn(4) + 1,
-		numOffers: rand.Intn(5) + 5,
-		loyalty: 1.0 + rand.Float32() * 0.2,
+		numOffers:    rand.Intn(5) + 5,
+		loyalty:      1.0 + rand.Float32()*0.2,
 	}
 }
 

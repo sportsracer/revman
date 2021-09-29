@@ -17,13 +17,13 @@ type WsMsg struct {
 }
 
 type WsServer struct {
-	conns map[*Conn] int
+	conns  map[*Conn]int
 	nextId int
 
-	join chan *Conn
+	join  chan *Conn
 	leave chan *Conn
-	rcv chan WsMsg
-	send chan WsMsg
+	rcv   chan WsMsg
+	send  chan WsMsg
 
 	subs []*Subscriber
 }
@@ -31,7 +31,7 @@ type WsServer struct {
 func (s *WsServer) MakeWsHandler() websocket.Handler {
 	handle := func(ws *websocket.Conn) {
 		log.Printf("WsServer: New connection")
-		conn := &Conn{ send: make (chan ProtMsg, 1024), ws: ws, server: s }
+		conn := &Conn{send: make(chan ProtMsg, 1024), ws: ws, server: s}
 		s.join <- conn
 		defer func() {
 			log.Printf("WsServer: Lost connection")
@@ -45,7 +45,7 @@ func (s *WsServer) MakeWsHandler() websocket.Handler {
 
 func (s *WsServer) Subscribe(sub *Subscriber) {
 	s.subs = append(s.subs, sub)
-} 
+}
 
 func (s *WsServer) Run() {
 	for {
@@ -64,7 +64,7 @@ func (s *WsServer) Run() {
 			close(conn.send)
 		case msg := <-s.rcv:
 			for _, sub := range s.subs {
-				sub.Rcv <- Msg{ Id: s.conns[msg.conn], Data: msg.data }
+				sub.Rcv <- Msg{Id: s.conns[msg.conn], Data: msg.data}
 			}
 		case msg := <-s.send:
 			select {
@@ -91,8 +91,8 @@ func (s *WsServer) Send(id int, msg string, data map[string]interface{}) error {
 
 type Conn struct {
 	server *WsServer
-	ws *websocket.Conn
-	send chan ProtMsg
+	ws     *websocket.Conn
+	send   chan ProtMsg
 }
 
 func (c *Conn) reader() {
@@ -102,7 +102,7 @@ func (c *Conn) reader() {
 			log.Println(err)
 			break
 		}
-		var msg = WsMsg{ conn: c, data: data }
+		var msg = WsMsg{conn: c, data: data}
 		c.server.rcv <- msg
 	}
 	c.ws.Close()
@@ -121,9 +121,9 @@ func (c *Conn) writer() {
 func MakeWsServer() *WsServer {
 	return &WsServer{
 		conns: make(map[*Conn]int, buffer_size),
-		join: make(chan *Conn, buffer_size),
+		join:  make(chan *Conn, buffer_size),
 		leave: make(chan *Conn, buffer_size),
-		rcv: make(chan WsMsg, buffer_size),
-		send: make(chan WsMsg, buffer_size),
+		rcv:   make(chan WsMsg, buffer_size),
+		send:  make(chan WsMsg, buffer_size),
 	}
 }

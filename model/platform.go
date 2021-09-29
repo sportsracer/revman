@@ -13,7 +13,7 @@ const (
 )
 
 type Platform struct {
-	Name string
+	Name   string
 	offers []*Offer
 }
 
@@ -40,7 +40,7 @@ func (p *Platform) BuyOffer(offer *Offer) error {
 		if offer == _offer {
 			// remove offer
 			p.offers[i] = p.offers[len(p.offers)-1]
-			p.offers = p.offers[0:len(p.offers)-1]
+			p.offers = p.offers[0 : len(p.offers)-1]
 			// wire the money!
 			offer.Hotel.Balance += offer.Price - VariableCost
 			return nil
@@ -73,8 +73,8 @@ func (o *offerByPrice) Len() int {
 }
 
 func (o *offerByPrice) Less(i, j int) bool {
-	p1 := o.offers[i].Price * (1.0 + rand.Float32() * priceRandomness)
-	p2 := o.offers[j].Price * (1.0 + rand.Float32() * priceRandomness)
+	p1 := o.offers[i].Price * (1.0 + rand.Float32()*priceRandomness)
+	p2 := o.offers[j].Price * (1.0 + rand.Float32()*priceRandomness)
 	return p1 < p2
 }
 
@@ -85,7 +85,7 @@ func (o *offerByPrice) Swap(i, j int) {
 func (p *Platform) getCheapestOffers(num int) []*Offer {
 	cp := make([]*Offer, len(p.offers))
 	copy(cp, p.offers)
-	offers := &offerByPrice {
+	offers := &offerByPrice{
 		offers: cp,
 	}
 	sort.Sort(offers)
