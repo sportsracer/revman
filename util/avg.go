@@ -4,6 +4,7 @@ import (
 	"errors"
 )
 
+// Calculate the average of an iterable of float32, e.g. a FloatSlice
 func Avg(iter Iterable) (float32, error) {
 	var sum float32
 	var count int
