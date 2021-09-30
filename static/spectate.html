@@ -1,63 +1,68 @@
 <!doctype html>
 <html>
-  <head>
-    <title>RevMan &ndash; Spectator Mode</title>
-    <style>
-      * {
-      font: 12px Ubuntu;
-      }
-      .player {
+
+<head>
+  <title>RevMan &ndash; Spectator Mode</title>
+  <style>
+    .player {
       border: 2px solid #aaa;
       margin: 20px;
       padding: 10px;
       text-align: center;
       width: 180px;
-      }
-      .balance {
+    }
+
+    .balance {
       font-size: 20px;
       font-weight: bold;
-      }
-      h1 {
+    }
+
+    h1 {
       font-size: 18px;
       font-weight: bold;
-      }
-      h2 {
+    }
+
+    h2 {
       font-size: 15px;
       font-weight: bold;
-      }
-      .platform {
+    }
+
+    .platform {
       float: left;
       width: 20%;
-      }
-    </style>
-  </head>
-  <body>
+    }
+  </style>
+</head>
 
-    <div id="players"></div>
+<body>
 
-    <h1>Platforms</h1>
+  <div id="players"></div>
 
-    <div class="platform">
-      <h2>TripAdvisor</h2>
-      <ul id="ta"></ul>
-    </div>
+  <h1>Platforms</h1>
 
-    <div class="platform">
-      <h2>Booking.com</h2>
-      <ul id="book"></ul>
-    </div>
+  <div class="platform">
+    <h2>TripAdvisor</h2>
+    <ul id="ta"></ul>
+  </div>
 
-    <div class="platform">
-      <h2>HRS</h2>
-      <ul id="hrs"></ul>
-    </div>
+  <div class="platform">
+    <h2>Booking.com</h2>
+    <ul id="book"></ul>
+  </div>
 
-    <div class="platform">
-      <h2>HolidayCheck</h2>
-      <ul id="hc"></ul>
-    </div>
+  <div class="platform">
+    <h2>HRS</h2>
+    <ul id="hrs"></ul>
+  </div>
 
-    <script src="jquery-2.0.2.min.js"></script>
-    <script src="spectate.js"></script>
-  </body>
+  <div class="platform">
+    <h2>HolidayCheck</h2>
+    <ul id="hc"></ul>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="spectate.js"></script>
+</body>
+
 </html>

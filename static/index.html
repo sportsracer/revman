@@ -1,78 +1,84 @@
 <!doctype html>
 <html>
-  <head>
-    <title>RevMan &ndash; Revenue Management reloaded!</title>
-    <style>
-      * {
-      font: 12px Ubuntu;
-      }
-      h1 {
+
+<head>
+  <title>RevMan &ndash; Revenue Management reloaded!</title>
+  <style>
+    h1 {
       font-size: 16px;
       font-weight: bold;
-      }
-      body {
+    }
+
+    body {
       box-shadow: 0 10px 10px #aaa;
       margin: 20px;
       padding: 20px;
-      }
-      #game {
+    }
+
+    #game {
       display: none;
-      }
-      .colLeft {
+    }
+
+    .colLeft {
       float: left;
       width: 50%;
-      }
-      .colRight {
+    }
+
+    .colRight {
       float: right;
       width: 50%;
-      }
-      #graph {
+    }
+
+    #graph {
       border: 2px solid #ddd;
       height: 400px;
       width: 100%;
-      }
-    </style>
-  </head>
-  <body>
-    <p id="status"></p>
-    <div id="setup">
+    }
+  </style>
+</head>
 
-      <h1>Welcome to RevMan!</h1>
+<body>
+  <p id="status"></p>
+  <div id="setup">
 
-      <p>Type in your info below and click &ldquo;Join&rdquo;</p>
+    <h1>Welcome to RevMan!</h1>
 
-      <label for="name">Name:</label><br/>
-      <input type="text" id="name" value="Playa"/>
-      <br/><br/>
+    <p>Type in your info below and click &ldquo;Join&rdquo;</p>
 
-      <label for="url">URL:</label><br/>
-      <input type="text" id="url" value="ws://localhost:8090/ws"/>
-      <br/><br/>
+    <label for="name">Name:</label><br />
+    <input type="text" id="name" value="Playa" />
+    <br /><br />
 
-      <button id="join">Join</button>
+    <label for="url">URL:</label><br />
+    <input type="text" id="url" value="ws://localhost:8090/ws" />
+    <br /><br />
 
+    <button id="join">Join</button>
+
+  </div>
+  <div id="game">
+    <h1>In game!</h1>
+
+    <div class="colLeft">
+      <label for="price">Price:</label><br />
+      <input type="text" id="price" value="100" />
+      <br /><br />
+
+      <p>Balance:<br /><span id="balance"></p>
+
+      <p>Bought offers:<br /><span id="boughtOffers"></p>
     </div>
-    <div id="game">
-      <h1>In game!</h1>
 
-      <div class="colLeft">
-	<label for="price">Price:</label><br/>
-	<input type="text" id="price" value="100"/>
-	<br/><br/>
-
-	<p>Balance:<br/><span id="balance"></p>
-
-	<p>Bought offers:<br/><span id="boughtOffers"></p>
-      </div>
-
-      <div class="colRight">
-	<div id="graph"></div>
-      </div>
-
-      <div style="clear: both"></div>
+    <div class="colRight">
+      <div id="graph"></div>
     </div>
-    <script src="jquery-2.0.2.min.js"></script>
-    <script src="jquery.flot.js"></script>
-    <script src="client.js"></script>
-  </body>
+
+    <div style="clear: both"></div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+    integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery.flot@0.8.3/jquery.flot.min.js"></script>
+  <script src="client.js"></script>
+</body>
+
 </html>
