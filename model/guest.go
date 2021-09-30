@@ -36,37 +36,36 @@ type Guest struct {
 	loyalty float32
 }
 
-func lastOffers(offers []*Offer, num int) []*Offer {
-	var i = len(offers) - num
-	if i < 0 {
-		i = 0
-	}
-	return offers[i:]
+// An iterator of the last offers that a guest remembers seeing/buying
+type rememberedOffers struct {
+	offers []*Offer
+	num    int
 }
 
-// make []*Offer iterable
-
-type offerSlice []*Offer
-
-func (xs offerSlice) iterate(out chan<- interface{}) {
-	for _, x := range xs {
-		out <- x
-	}
-	close(out)
-}
-
-func (xs offerSlice) Iter() <-chan interface{} {
+func (o rememberedOffers) Iter() <-chan interface{} {
 	ch := make(chan interface{})
-	go xs.iterate(ch)
+
+	go (func() {
+		end := len(o.offers)
+		start := end - o.num
+		if start < 0 {
+			start = 0
+		}
+		for i := start; i < end; i++ {
+			ch <- o.offers[i]
+		}
+		close(ch)
+	})()
+
 	return ch
 }
 
+// Model loyalty to a specific hotel. Return this guest's preferred hotel, if they have one. They need to have stayed at this hotel a lot
 func (g *Guest) getPreferredHotel() *Hotel {
-
 	getHotel := func(o interface{}) interface{} {
 		return o.(*Offer).Hotel
 	}
-	var offers offerSlice = lastOffers(g.boughtOffers, cognitiveLoad)
+	offers := rememberedOffers{g.boughtOffers, cognitiveLoad}
 	hotels := util.Map(getHotel, offers)
 
 	hotel, count := util.MaxOccur(hotels)
@@ -77,12 +76,12 @@ func (g *Guest) getPreferredHotel() *Hotel {
 	return hotel.(*Hotel)
 }
 
+// Model loyalty to a specific platform. Return this guest's preferred platform, if they have one.
 func (g *Guest) getPreferredPlatform() *Platform {
-
 	getPlatform := func(o interface{}) interface{} {
 		return o.(*Offer).Platform
 	}
-	var offers offerSlice = lastOffers(g.boughtOffers, cognitiveLoad)
+	offers := rememberedOffers{g.boughtOffers, cognitiveLoad}
 	platforms := util.Map(getPlatform, offers)
 
 	platform, count := util.MaxOccur(platforms)
@@ -93,8 +92,8 @@ func (g *Guest) getPreferredPlatform() *Platform {
 	return platform.(*Platform)
 }
 
+// Get this guest's adjusted value perception, based on offers they have seen or bought.
 func (g *Guest) GetValue() float32 {
-
 	var sum float32
 	var totalWeight float32
 
@@ -102,37 +101,41 @@ func (g *Guest) GetValue() float32 {
 		return o.(*Offer).Price
 	}
 
-	var boughtOffers offerSlice = lastOffers(g.boughtOffers, cognitiveLoad)
-	var avgBought, boughtErr = util.Avg(util.Map(getPrice, boughtOffers))
+	boughtOffers := rememberedOffers{g.boughtOffers, cognitiveLoad}
+	avgBought, boughtErr := util.Avg(util.Map(getPrice, boughtOffers))
 	if boughtErr == nil {
 		sum += avgBought * boughtWeight
 		totalWeight += boughtWeight
 	}
 
-	var seenOffers offerSlice = lastOffers(g.seenOffers, cognitiveLoad)
-	var avgSeen, seenErr = util.Avg(util.Map(getPrice, seenOffers))
+	seenOffers := rememberedOffers{g.seenOffers, cognitiveLoad}
+	avgSeen, seenErr := util.Avg(util.Map(getPrice, seenOffers))
 	if seenErr == nil {
 		sum += avgSeen * seenWeight
 		totalWeight += seenWeight
 	}
 
-	{
-		sum += g.value * valueWeight
-		totalWeight += valueWeight
-	}
-
+	sum += g.value * valueWeight
+	totalWeight += valueWeight
 	return sum / totalWeight
 }
 
-func shufflePlatforms(platforms []*Platform) []*Platform {
-	indices := rand.Perm(len(platforms))
-	shuffled := make([]*Platform, len(platforms))
-	for i, v := range indices {
-		shuffled[v] = platforms[i]
+// Return slice of `num` randomly picked platforms
+func takeRandomPlatforms(platforms []*Platform, num int) []*Platform {
+	if num > len(platforms) {
+		num = len(platforms)
 	}
+	shuffled := make([]*Platform, num)
+
+	indices := rand.Perm(len(platforms))
+	for i, j := range indices[:num] {
+		shuffled[i] = platforms[j]
+	}
+
 	return shuffled
 }
 
+// Calculate price adjusted by loyalty, if the offer is for the preferred hotel
 func getAdjustedPrice(o *Offer, value float32, preferredHotel *Hotel, loyalty float32) float32 {
 	price := o.Price
 	if o.Hotel == preferredHotel {
@@ -142,39 +145,11 @@ func getAdjustedPrice(o *Offer, value float32, preferredHotel *Hotel, loyalty fl
 	return price
 }
 
-// make offers sortable by value for this guest
-
-type offerByAdjustedPrice struct {
-	offers         []*Offer
-	value          float32
-	preferredHotel *Hotel
-	loyalty        float32
-}
-
-func (o *offerByAdjustedPrice) Len() int {
-	return len(o.offers)
-}
-
-func (o *offerByAdjustedPrice) Less(i, j int) bool {
-	v1 := getAdjustedPrice(o.offers[i], o.value, o.preferredHotel, o.loyalty)
-	v2 := getAdjustedPrice(o.offers[j], o.value, o.preferredHotel, o.loyalty)
-	return v1 < v2
-}
-
-func (o *offerByAdjustedPrice) Swap(i, j int) {
-	o.offers[i], o.offers[j] = o.offers[j], o.offers[i]
-}
-
 func (g *Guest) BuyOffer(platforms []*Platform) *Offer {
-
 	// choose platforms
-	consideredPlatforms := make([]*Platform, 0)
+	consideredPlatforms := takeRandomPlatforms(platforms, g.numPlatforms)
 	if preferredPlatform := g.getPreferredPlatform(); preferredPlatform != nil {
 		consideredPlatforms = append(consideredPlatforms, preferredPlatform)
-	}
-	platforms = shufflePlatforms(platforms)
-	for i := len(consideredPlatforms); i < g.numPlatforms && i < len(platforms); i++ {
-		consideredPlatforms = append(consideredPlatforms, platforms[i])
 	}
 
 	// choose offers
@@ -199,35 +174,29 @@ func (g *Guest) BuyOffer(platforms []*Platform) *Offer {
 	// update value
 	g.value = g.GetValue()
 
-	filterOffer := func(o interface{}) bool {
-		max := func() float32 {
-			if g.maxValue < g.value {
-				return g.maxValue
-			}
-			return g.value
-		}()
-		return getAdjustedPrice(o.(*Offer), g.value, preferredHotel, g.loyalty) <= max
+	// only consider offers below our acceptable price
+	maxPrice := g.value
+	if g.maxValue < maxPrice {
+		maxPrice = g.maxValue
 	}
 	acceptableOffers := make([]*Offer, 0)
 	for _, offer := range consideredOffers {
-		if filterOffer(offer) {
+		if getAdjustedPrice(offer, g.value, preferredHotel, g.loyalty) <= maxPrice {
 			acceptableOffers = append(acceptableOffers, offer)
 		}
 	}
 
-	offers := &offerByAdjustedPrice{
-		offers:         acceptableOffers,
-		value:          g.value,
-		preferredHotel: preferredHotel,
-		loyalty:        g.loyalty,
-	}
-	sort.Sort(offers)
+	sort.Slice(acceptableOffers, func(i, j int) bool {
+		v1 := getAdjustedPrice(acceptableOffers[i], g.value, preferredHotel, g.loyalty)
+		v2 := getAdjustedPrice(acceptableOffers[j], g.value, preferredHotel, g.loyalty)
+		return v1 < v2
+	})
 
-	if len(offers.offers) == 0 {
+	if len(acceptableOffers) == 0 {
 		return nil
 	}
-	g.boughtOffers = append(g.boughtOffers, offers.offers[0])
-	return offers.offers[0]
+	g.boughtOffers = append(g.boughtOffers, acceptableOffers[0])
+	return acceptableOffers[0]
 }
 
 func MakeGuest() *Guest {
