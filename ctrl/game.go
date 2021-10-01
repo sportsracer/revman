@@ -82,7 +82,7 @@ func (g *Game) Tick() (statuses map[int]map[string]interface{}, players []map[st
 			continue
 		}
 		if err := offer.Platform.BuyOffer(offer); err != nil {
-			log.Panic("Game: Error in transaction for %s", offer)
+			log.Panicf("Game: Error in transaction for %s", offer)
 			continue
 		}
 
@@ -95,7 +95,7 @@ func (g *Game) Tick() (statuses map[int]map[string]interface{}, players []map[st
 			}
 		}
 		if id == -1 {
-			log.Panic("Hotel %s for offer not found", offer.Hotel)
+			log.Panicf("Hotel %s for offer not found", offer.Hotel)
 		}
 		offerStatus := map[string]interface{}{"platform": offer.Platform.Name, "price": offer.Price}
 		if _, ok := boughtPerPlayer[id]; !ok {
