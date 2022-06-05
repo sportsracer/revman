@@ -10,7 +10,7 @@ This project is implemented in Go, for no particular reason that I wanted to lea
 
 ## Usage
 
-RevMan was updated since it was written, and was most recently tested on Go 1.17. To run the server:
+RevMan was updated since it was written, and now requires Go 1.18. To run the server:
 
 ```bash
 # Run directly:
