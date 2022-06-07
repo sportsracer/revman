@@ -4,9 +4,9 @@ import "testing"
 
 func TestAvg(t *testing.T) {
 	t.Run("returns an error on empty iterables", func(t *testing.T) {
-		xs := FloatSlice{}
+		xs := []float32{}
 
-		_, err := Avg(xs)
+		_, err := Avg(Iter(xs))
 
 		if err == nil {
 			t.Error("Expected error here")
@@ -14,9 +14,9 @@ func TestAvg(t *testing.T) {
 	})
 
 	t.Run("computes average correctly", func(t *testing.T) {
-		xs := FloatSlice{1.0, 2.0, 3.0}
+		xs := []float32{1.0, 2.0, 3.0}
 
-		avg, err := Avg(xs)
+		avg, err := Avg(Iter(xs))
 
 		if err != nil {
 			t.Error("Unexpected error")
