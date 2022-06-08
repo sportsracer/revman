@@ -36,80 +36,51 @@ type Guest struct {
 	loyalty float32
 }
 
-// An iterator of the last offers that a guest remembers seeing/buying
-type rememberedOffers struct {
-	offers []*Offer
-	num    int
-}
-
-func (o rememberedOffers) Iter() <-chan interface{} {
-	ch := make(chan interface{})
-
-	go (func() {
-		end := len(o.offers)
-		start := end - o.num
-		if start < 0 {
-			start = 0
-		}
-		for i := start; i < end; i++ {
-			ch <- o.offers[i]
-		}
-		close(ch)
-	})()
-
-	return ch
-}
-
 // Model loyalty to a specific hotel. Return this guest's preferred hotel, if they have one. They need to have stayed at this hotel a lot
 func (g *Guest) getPreferredHotel() *Hotel {
-	getHotel := func(o interface{}) interface{} {
-		return o.(*Offer).Hotel
-	}
-	offers := rememberedOffers{g.boughtOffers, cognitiveLoad}
-	hotels := util.Map(getHotel, offers)
-
+	offers := util.TakeFirst(util.Iter(g.boughtOffers), cognitiveLoad)
+	hotels := util.Map(offers, func(o *Offer) *Hotel {
+		return o.Hotel
+	})
 	hotel, count := util.MaxOccur(hotels)
 
 	if count <= cognitiveLoad/5 {
 		return nil
 	}
-	return hotel.(*Hotel)
+	return *hotel
 }
 
 // Model loyalty to a specific platform. Return this guest's preferred platform, if they have one.
 func (g *Guest) getPreferredPlatform() *Platform {
-	getPlatform := func(o interface{}) interface{} {
-		return o.(*Offer).Platform
-	}
-	offers := rememberedOffers{g.boughtOffers, cognitiveLoad}
-	platforms := util.Map(getPlatform, offers)
-
+	offers := util.TakeFirst(util.Iter(g.boughtOffers), cognitiveLoad)
+	platforms := util.Map(offers, func(o *Offer) *Platform {
+		return o.Platform
+	})
 	platform, count := util.MaxOccur(platforms)
 
 	if count <= cognitiveLoad/5 {
 		return nil
 	}
-	return platform.(*Platform)
+	return *platform
 }
 
 // Get this guest's adjusted value perception, based on offers they have seen or bought.
 func (g *Guest) GetValue() float32 {
-	var sum float32
-	var totalWeight float32
+	var sum, totalWeight float32
 
-	getPrice := func(o interface{}) interface{} {
-		return o.(*Offer).Price
+	getPrice := func(o *Offer) float32 {
+		return o.Price
 	}
 
-	boughtOffers := rememberedOffers{g.boughtOffers, cognitiveLoad}
-	avgBought, boughtErr := util.Avg(util.Map(getPrice, boughtOffers))
+	boughtOffers := util.TakeFirst(util.Iter(g.boughtOffers), cognitiveLoad)
+	avgBought, boughtErr := util.Avg(util.Map(boughtOffers, getPrice))
 	if boughtErr == nil {
 		sum += avgBought * boughtWeight
 		totalWeight += boughtWeight
 	}
 
-	seenOffers := rememberedOffers{g.seenOffers, cognitiveLoad}
-	avgSeen, seenErr := util.Avg(util.Map(getPrice, seenOffers))
+	seenOffers := util.TakeFirst(util.Iter(g.seenOffers), cognitiveLoad)
+	avgSeen, seenErr := util.Avg(util.Map(seenOffers, getPrice))
 	if seenErr == nil {
 		sum += avgSeen * seenWeight
 		totalWeight += seenWeight
