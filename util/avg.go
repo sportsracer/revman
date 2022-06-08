@@ -2,18 +2,18 @@ package util
 
 import (
 	"errors"
+	"golang.org/x/exp/constraints"
 )
 
-// Calculate the average of an iterable of float32, e.g. a FloatSlice
-func Avg(iter Iterable) (float32, error) {
-	var sum float32
-	var count int
-	for x := range iter.Iter() {
-		sum += x.(float32)
+// Calculate the average of an iterable of floats
+func Avg[T constraints.Float](iter Iterable[T]) (T, error) {
+	var sum, count T
+	for x := range iter {
+		sum += x
 		count += 1
 	}
 	if count == 0 {
 		return 0, errors.New("Empty sequence")
 	}
-	return sum / float32(count), nil
+	return sum / count, nil
 }
